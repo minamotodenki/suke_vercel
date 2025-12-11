@@ -5,6 +5,7 @@ import apiClient from '../api/client';
 import { EventWithResponses, Response } from '../types/event';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
+import { parseServerDate } from '../utils/date';
 
 function ViewEvent() {
   const { id } = useParams<{ id: string }>();
@@ -85,8 +86,11 @@ function ViewEvent() {
         responderMap[r.name] = {};
       }
       // 最新の回答を使用
-      if (!responderMap[r.name][r.date_option_id] ||
-          new Date(r.created_at) > new Date(responderMap[r.name][r.date_option_id].created_at)) {
+      const current = responderMap[r.name][r.date_option_id];
+      const incomingDate = parseServerDate(r.created_at);
+      const existingDate = current ? parseServerDate(current.created_at) : null;
+
+      if (!current || incomingDate > (existingDate || incomingDate)) {
         responderMap[r.name][r.date_option_id] = r;
       }
     });
@@ -249,4 +253,3 @@ function ViewEvent() {
 }
 
 export default ViewEvent;
-

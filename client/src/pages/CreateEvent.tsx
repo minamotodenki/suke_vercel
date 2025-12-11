@@ -4,6 +4,7 @@ import apiClient from '../api/client';
 import { CreateEventRequest, Event } from '../types/event';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isSameDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
+import { parseServerDate } from '../utils/date';
 
 interface DateOption {
   id: string;
@@ -420,7 +421,7 @@ function CreateEvent() {
               <Link key={evt.id} to={`/event/${evt.id}`} className="existing-event-item">
                 <div className="existing-event-title">{evt.title}</div>
                 <div className="existing-event-meta">
-                  作成日: {format(new Date(evt.created_at), 'yyyy/MM/dd HH:mm', { locale: ja })}
+                  作成日: {format(parseServerDate(evt.created_at), 'yyyy/MM/dd HH:mm', { locale: ja })}
                 </div>
               </Link>
             ))}
@@ -432,7 +433,6 @@ function CreateEvent() {
 }
 
 export default CreateEvent;
-
 
 
 

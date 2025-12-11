@@ -4,6 +4,7 @@ import apiClient from '../api/client';
 import { EventWithResponses, DateOption, Response } from '../types/event';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
+import { parseServerDate } from '../utils/date';
 
 function RespondEvent() {
   const { id } = useParams<{ id: string }>();
@@ -44,7 +45,7 @@ function RespondEvent() {
     const latestByDate: { [key: string]: Response } = {};
     matching.forEach((r) => {
       const existing = latestByDate[r.date_option_id];
-      if (!existing || new Date(r.created_at) > new Date(existing.created_at)) {
+      if (!existing || parseServerDate(r.created_at) > parseServerDate(existing.created_at)) {
         latestByDate[r.date_option_id] = r;
       }
     });
@@ -58,7 +59,7 @@ function RespondEvent() {
 
     const latestComment = matching
       .filter((r) => r.comment)
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]?.comment || '';
+      .sort((a, b) => parseServerDate(b.created_at).getTime() - parseServerDate(a.created_at).getTime())[0]?.comment || '';
 
     setName(targetName);
     setSelectedExistingName(targetName);
@@ -324,7 +325,6 @@ function RespondEvent() {
 }
 
 export default RespondEvent;
-
 
 
 
