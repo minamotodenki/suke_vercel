@@ -1,31 +1,33 @@
 import fs from 'fs';
 import path from 'path';
 import sqlite3 from 'sqlite3';
-import { promisify } from 'util';
 
-const defaultDbPath = path.join(__dirname, '../data/schedule.db');
+const isVercel = Boolean(process.env.VERCEL);
+const defaultDbPath = isVercel
+  ? path.join('/tmp', 'schedule.db')
+  : path.join(__dirname, '../data/schedule.db');
 
 const dbPath = (() => {
   const envPath = process.env.DB_PATH ? path.resolve(process.env.DB_PATH) : null;
-  if (envPath) {
-    const dir = path.dirname(envPath);
-    if (fs.existsSync(dir)) {
-      return envPath;
-    }
-    console.warn(`DB_PATHで指定されたディレクトリが存在しません (${dir})。デフォルトパスを使用します。`);
+  const targetPath = envPath || defaultDbPath;
+  const dir = path.dirname(targetPath);
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
-  return defaultDbPath;
+
+  return targetPath;
 })();
 
 let db: sqlite3.Database;
 
-export function getDatabase(): sqlite3.Database {
+function getDatabase(): sqlite3.Database {
   if (!db) {
     db = new sqlite3.Database(dbPath, (err) => {
       if (err) {
         console.error('データベース接続エラー:', err);
       } else {
-        console.log('データベースに接続しました');
+        console.log(`データベースに接続しました: ${dbPath}`);
       }
     });
   }
@@ -63,8 +65,6 @@ export function all<T>(sql: string, params: any[] = []): Promise<T[]> {
 }
 
 export async function initDatabase(): Promise<void> {
-  const database = getDatabase();
-  
   // イベントテーブル
   await run(`
     CREATE TABLE IF NOT EXISTS events (
@@ -110,5 +110,3 @@ export async function initDatabase(): Promise<void> {
 
   console.log('データベーステーブルを初期化しました');
 }
-
-

@@ -54,7 +54,22 @@ npm run dev
 npm run build
 ```
 
-## Windows Server 2019へのデプロイ
+## Vercelへのデプロイ
+
+`vercel.json` でフロントエンド（Viteビルド）と API（Nodeサーバーレス関数）をまとめてデプロイできるようにしています。
+
+1. Vercelで新規プロジェクトを作成し、リポジトリのルートを指定（追加の設定は不要）。
+2. 環境変数
+   - `SERVE_CLIENT=false` : API関数で静的ファイルを配信しないようにする（静的配信はVercel側が担当）。
+   - `DB_PATH=/tmp/schedule.db`（省略可）: Vercelでは `/tmp` のみ書き込み可能。SQLiteはインスタンスのライフサイクルで消えるため、永続化したい場合は外部DB（Vercel Postgres / KV など）に移行してください。
+   - `NODE_ENV=production`（Vercelで自動設定）
+3. エンドポイント
+   - API: `/api/...`（例: `/api/events`）
+   - フロント: `https://<project>.vercel.app` — SPAルーティングは `vercel.json` で `index.html` へリライト済み
+4. ローカル動作確認
+   - `vercel dev` もしくは従来どおり `npm run dev`
+
+## 自己ホスト（Windows Server 2019など）
 
 ### 1. Node.jsのインストール
 
@@ -103,7 +118,9 @@ pm2 delete schedule-app # 登録から外す
 
 ## データベース
 
-デフォルトではSQLiteを使用します。本番環境ではSQL Serverへの移行を推奨します。
+デフォルトではSQLiteを使用します。
+- ローカル/自己ホスト: `server/data/schedule.db`（`DB_PATH` で変更可能）
+- Vercel: `/tmp/schedule.db` に自動配置（揮発的）。永続化する場合は外部DBを利用してください。
 
 ## ライセンス
 
