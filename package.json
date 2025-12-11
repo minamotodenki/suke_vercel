@@ -4,6 +4,8 @@
   "description": "スケジュール調整・出欠管理アプリ",
   "main": "server/index.js",
   "scripts": {
+    "postinstall": "npm run install:all",
+    "install:all": "cd server && npm install && cd ../client && npm install",
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
     "server:dev": "cd server && npm run dev",
     "client:dev": "cd client && npm start",
@@ -29,5 +31,4 @@
     "concurrently": "^8.2.2"
   }
 }
-
 
