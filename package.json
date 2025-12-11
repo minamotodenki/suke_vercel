@@ -24,10 +24,10 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@types/node": "^20.12.12",
+    "@vercel/node": "^5.5.15",
     "concurrently": "^8.2.2"
   }
 }
-
-
 
 
