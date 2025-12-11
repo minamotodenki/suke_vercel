@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
 router.get('/', async (_req, res) => {
   try {
     const events = await all<Event>(
-      'SELECT id, title, description, created_at, expires_at FROM events ORDER BY datetime(created_at) DESC LIMIT 50'
+      'SELECT id, title, description, created_at, expires_at FROM events ORDER BY created_at DESC LIMIT 50'
     );
     res.json(events);
   } catch (error) {
@@ -142,7 +142,7 @@ router.post('/:id/date-options', async (req, res) => {
 
       // 既存と重複する日程はスキップ
       const existing = await get<DateOption>(
-        'SELECT * FROM date_options WHERE event_id = ? AND date = ? AND IFNULL(time_start, "") = IFNULL(?, "") AND IFNULL(time_end, "") = IFNULL(?, "")',
+        'SELECT * FROM date_options WHERE event_id = ? AND date = ? AND COALESCE(time_start, "") = COALESCE(?, "") AND COALESCE(time_end, "") = COALESCE(?, "")',
         [id, option.date, timeStart, timeEnd]
       );
 
@@ -173,7 +173,6 @@ router.post('/:id/date-options', async (req, res) => {
 });
 
 export { router as eventRoutes };
-
 
 
 

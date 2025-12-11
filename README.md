@@ -61,7 +61,8 @@ npm run build
 1. Vercelで新規プロジェクトを作成し、リポジトリのルートを指定（追加の設定は不要）。
 2. 環境変数
    - `SERVE_CLIENT=false` : API関数で静的ファイルを配信しないようにする（静的配信はVercel側が担当）。
-   - `DB_PATH=/tmp/schedule.db`（省略可）: Vercelでは `/tmp` のみ書き込み可能。SQLiteはインスタンスのライフサイクルで消えるため、永続化したい場合は外部DB（Vercel Postgres / KV など）に移行してください。
+   - **永続化する場合（推奨）**: `DB_PROVIDER=postgres` と `DATABASE_URL`（または `POSTGRES_URL`）を設定。Vercel Postgresを作成して接続文字列を貼り付ければOK。テーブルは自動で作成されます。
+   - **SQLiteでお試し（揮発的）**: `DB_PATH=/tmp/schedule.db`（省略可）。Vercelでは `/tmp` のみ書き込み可能なのでデータはデプロイ/再起動で消えます。
    - `NODE_ENV=production`（Vercelで自動設定）
 3. エンドポイント
    - API: `/api/...`（例: `/api/events`）
@@ -92,6 +93,9 @@ Windows Server 2019にNode.jsをインストールします。
 PORT=3001
 NODE_ENV=production
 DB_PATH=C:\path\to\data\schedule.db
+# 永続化でPostgresを使う場合（例）
+# DB_PROVIDER=postgres
+# DATABASE_URL=postgres://user:pass@host:5432/dbname
 ```
 
 ### 5. サービスとして実行（推奨）
@@ -118,9 +122,10 @@ pm2 delete schedule-app # 登録から外す
 
 ## データベース
 
-デフォルトではSQLiteを使用します。
-- ローカル/自己ホスト: `server/data/schedule.db`（`DB_PATH` で変更可能）
-- Vercel: `/tmp/schedule.db` に自動配置（揮発的）。永続化する場合は外部DBを利用してください。
+デフォルトではSQLite（手軽、だがVercelでは揮発）。永続化したい場合はPostgresを利用してください。
+
+- SQLite: ローカル/自己ホスト用。`DB_PATH` で配置先変更可。Vercelでは `/tmp/schedule.db`（デプロイごとに消えます）。
+- Postgres: `DB_PROVIDER=postgres` と `DATABASE_URL` を設定すると自動的にPostgresを使用し、必要なテーブルを作成します。Vercel Postgresや外部の管理DBを指定してください。
 
 ## ライセンス
 
